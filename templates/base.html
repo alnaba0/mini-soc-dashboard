@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Mini SOC Dashboard{% endblock %} — SOC</title>
+  <title>{% block title %}Mini SOC Dashboard{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -11,77 +11,24 @@
     <div class="container topbar-inner">
       <div class="brand">
         <div class="brand-icon">🛡</div>
-        <h1>Mini<span>SOC</span></h1>
+        <div>
+          <h1>Mini SOC Dashboard</h1>
+          <p class="brand-sub">Local sample monitoring dashboard</p>
+        </div>
       </div>
       <nav class="nav">
-        <a href="{{ url_for('index') }}"      {% if request.endpoint == 'index'      %}class="active"{% endif %}>Dashboard</a>
-        <a href="{{ url_for('logs_page') }}"  {% if request.endpoint == 'logs_page'  %}class="active"{% endif %}>Logs</a>
-        <a href="{{ url_for('alerts_page') }}"{% if request.endpoint == 'alerts_page'%}class="active"{% endif %}>Alerts</a>
+        <a href="{{ url_for('index') }}" {% if request.endpoint == 'index' %}class="active"{% endif %}>Dashboard</a>
+        <a href="{{ url_for('logs_page') }}" {% if request.endpoint == 'logs_page' %}class="active"{% endif %}>Logs</a>
+        <a href="{{ url_for('alerts_page') }}" {% if request.endpoint == 'alerts_page' %}class="active"{% endif %}>Alerts</a>
         <a href="{{ url_for('scans_page') }}" {% if request.endpoint == 'scans_page' %}class="active"{% endif %}>Scans</a>
       </nav>
-      <div class="live-clock">
-        <span class="live-dot"></span>
-        <span id="clock">--:--:--</span> UTC
-      </div>
     </div>
   </header>
 
-  <main class="container">
+  <main class="container page-shell">
     {% block content %}{% endblock %}
   </main>
 
-  <script>
-    // Live clock
-    function updateClock() {
-      const now = new Date();
-      document.getElementById('clock').textContent =
-        now.toUTCString().split(' ')[4];
-    }
-    updateClock();
-    setInterval(updateClock, 1000);
-
-    // Sortable tables
-    document.querySelectorAll('thead th[data-sort]').forEach(th => {
-      th.addEventListener('click', () => {
-        const table = th.closest('table');
-        const tbody = table.querySelector('tbody');
-        const col   = [...th.parentElement.children].indexOf(th);
-        const asc   = th.dataset.dir !== 'asc';
-        th.dataset.dir = asc ? 'asc' : 'desc';
-        [...tbody.querySelectorAll('tr')].sort((a, b) => {
-          const av = a.children[col]?.textContent.trim() ?? '';
-          const bv = b.children[col]?.textContent.trim() ?? '';
-          return asc ? av.localeCompare(bv, undefined, {numeric:true})
-                     : bv.localeCompare(av, undefined, {numeric:true});
-        }).forEach(r => tbody.appendChild(r));
-        table.querySelectorAll('thead th .sort-icon').forEach(i => i.textContent = ' ↕');
-        th.querySelector('.sort-icon').textContent = asc ? ' ↑' : ' ↓';
-      });
-    });
-
-    // Client-side search
-    const searchBox = document.getElementById('tableSearch');
-    if (searchBox) {
-      searchBox.addEventListener('input', () => {
-        const q = searchBox.value.toLowerCase();
-        document.querySelectorAll('tbody tr').forEach(row => {
-          row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
-        });
-      });
-    }
-
-    // Animate number counters
-    document.querySelectorAll('.card-value[data-target]').forEach(el => {
-      const target = parseInt(el.dataset.target, 10);
-      let current = 0;
-      const step = Math.ceil(target / 30);
-      const tick = () => {
-        current = Math.min(current + step, target);
-        el.textContent = current;
-        if (current < target) requestAnimationFrame(tick);
-      };
-      requestAnimationFrame(tick);
-    });
-  </script>
+  {% block scripts %}{% endblock %}
 </body>
 </html>

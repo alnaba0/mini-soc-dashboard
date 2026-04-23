@@ -1,78 +1,84 @@
 {% extends "base.html" %}
 {% block title %}Alerts{% endblock %}
 {% block content %}
-<div style="margin-top:24px"></div>
-<div class="section-title">Security Alerts</div>
-
-<!-- Summary cards -->
-<section class="cards" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
-  <div class="card card-red">
-    <div class="card-label">High</div>
-    <div class="card-value" data-target="{{ alerts|selectattr('severity','equalto','high')|list|length }}">0</div>
-    <div class="card-icon">🔴</div>
+<div class="page-heading">
+  <div>
+    <h2>Generated alerts</h2>
+    <p>Review alerts, filter by severity, and expand an alert to see why it was triggered.</p>
   </div>
-  <div class="card card-orange">
-    <div class="card-label">Medium</div>
-    <div class="card-value" data-target="{{ alerts|selectattr('severity','equalto','medium')|list|length }}">0</div>
-    <div class="card-icon">🟠</div>
-  </div>
-  <div class="card card-green">
-    <div class="card-label">Low</div>
-    <div class="card-value" data-target="{{ alerts|selectattr('severity','equalto','low')|list|length }}">0</div>
-    <div class="card-icon">🟢</div>
-  </div>
-</section>
-
-<div class="panel">
-  <h2><span class="dot" style="background:var(--red)"></span> All Alerts</h2>
-
-  <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px">
-    <div class="filters" id="alertFilters">
-      <button class="filter-btn active" data-sev="all">All</button>
-      <button class="filter-btn" data-sev="high">High</button>
-      <button class="filter-btn" data-sev="medium">Medium</button>
-      <button class="filter-btn" data-sev="low">Low</button>
-    </div>
-    <input id="tableSearch" class="search-box" type="text" placeholder="🔍  Search alerts…">
-  </div>
-
-  <div class="table-wrap">
-    <table id="alertTable">
-      <thead>
-        <tr>
-          <th data-sort>Severity <i class="sort-icon">↕</i></th>
-          <th data-sort>Type <i class="sort-icon">↕</i></th>
-          <th data-sort>Source <i class="sort-icon">↕</i></th>
-          <th>Details</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for alert in alerts %}
-        <tr data-sev="{{ alert.severity }}">
-          <td><span class="badge badge-{{ alert.severity }}">{{ alert.severity|title }}</span></td>
-          <td class="td-plain">{{ alert.type }}</td>
-          <td>{{ alert.source }}</td>
-          <td class="td-plain">{{ alert.details }}</td>
-        </tr>
-        {% else %}
-        <tr><td colspan="4" class="empty">No alerts generated.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+  <a class="btn btn-light" href="{{ url_for('export_alerts') }}">Export alerts CSV</a>
 </div>
 
+<section class="cards cards-3">
+  <div class="card"><div class="card-label">High</div><div class="card-value danger">{{ alerts|selectattr('severity','equalto','high')|list|length }}</div></div>
+  <div class="card"><div class="card-label">Medium</div><div class="card-value warn">{{ alerts|selectattr('severity','equalto','medium')|list|length }}</div></div>
+  <div class="card"><div class="card-label">Low</div><div class="card-value ok">{{ alerts|selectattr('severity','equalto','low')|list|length }}</div></div>
+</section>
+
+<section class="panel">
+  <div class="panel-header">
+    <h3>All alerts</h3>
+  </div>
+  <div class="toolbar toolbar-wrap">
+    <div class="filters" id="alertFilters">
+      <button class="filter-btn active" type="button" data-sev="all">All</button>
+      <button class="filter-btn" type="button" data-sev="high">High</button>
+      <button class="filter-btn" type="button" data-sev="medium">Medium</button>
+      <button class="filter-btn" type="button" data-sev="low">Low</button>
+    </div>
+    <input id="alertSearch" class="input input-grow" type="text" placeholder="Search alerts">
+  </div>
+
+  <div class="alert-list" id="alertList">
+    {% for alert in alerts %}
+    <details class="alert-item" data-sev="{{ alert.severity }}">
+      <summary>
+        <span class="alert-main">
+          <span class="badge badge-{{ alert.severity }}">{{ alert.severity|title }}</span>
+          <strong>{{ alert.type }}</strong>
+          <span class="muted-inline">{{ alert.source }}</span>
+        </span>
+        <span class="muted-inline">Click for details</span>
+      </summary>
+      <div class="alert-body">
+        <p><strong>Details:</strong> {{ alert.details }}</p>
+        <p><strong>Why triggered:</strong> {{ alert.reason }}</p>
+      </div>
+    </details>
+    {% else %}
+    <div class="empty">No alerts generated.</div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
 <script>
-  // Severity filter buttons
-  document.querySelectorAll('#alertFilters .filter-btn').forEach(btn => {
+  const alertSearch = document.getElementById('alertSearch');
+  const alertItems = Array.from(document.querySelectorAll('#alertList .alert-item'));
+  const filterButtons = document.querySelectorAll('#alertFilters .filter-btn');
+  let activeSeverity = 'all';
+
+  function applyAlertFilters() {
+    const query = (alertSearch?.value || '').toLowerCase();
+    alertItems.forEach(item => {
+      const matchesSeverity = activeSeverity === 'all' || item.dataset.sev === activeSeverity;
+      const matchesQuery = item.textContent.toLowerCase().includes(query);
+      item.style.display = matchesSeverity && matchesQuery ? '' : 'none';
+    });
+  }
+
+  filterButtons.forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('#alertFilters .filter-btn').forEach(b => b.classList.remove('active'));
+      filterButtons.forEach(other => other.classList.remove('active'));
       btn.classList.add('active');
-      const sev = btn.dataset.sev;
-      document.querySelectorAll('#alertTable tbody tr[data-sev]').forEach(row => {
-        row.style.display = (sev === 'all' || row.dataset.sev === sev) ? '' : 'none';
-      });
+      activeSeverity = btn.dataset.sev;
+      applyAlertFilters();
     });
   });
+
+  if (alertSearch) {
+    alertSearch.addEventListener('input', applyAlertFilters);
+  }
 </script>
 {% endblock %}

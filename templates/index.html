@@ -1,23 +1,82 @@
 {% extends "base.html" %}
 {% block title %}Dashboard{% endblock %}
 {% block content %}
+<div class="page-heading">
+  <div>
+    <h2>Dashboard overview</h2>
+    <p>Quick summary of logs, alerts, scans, and suspicious activity.</p>
+  </div>
+</div>
+
 <section class="cards">
-    <div class="card"><strong>Total Logs:</strong> {{ stats.total_logs }}</div>
-    <div class="card"><strong>Total Alerts:</strong> {{ stats.total_alerts }}</div>
-    <div class="card"><strong>High Alerts:</strong> {{ stats.high_alerts }}</div>
-    <div class="card"><strong>Open Ports:</strong> {{ stats.open_ports }}</div>
+  <div class="card"><div class="card-label">Total logs</div><div class="card-value">{{ stats.total_logs }}</div></div>
+  <div class="card"><div class="card-label">Total alerts</div><div class="card-value">{{ stats.total_alerts }}</div></div>
+  <div class="card"><div class="card-label">High alerts</div><div class="card-value danger">{{ stats.high_alerts }}</div></div>
+  <div class="card"><div class="card-label">Open ports</div><div class="card-value">{{ stats.open_ports }}</div></div>
+  <div class="card"><div class="card-label">Suspicious logs</div><div class="card-value warn">{{ stats.suspicious_logs }}</div></div>
+  <div class="card"><div class="card-label">Attack rows</div><div class="card-value danger">{{ stats.attack_rows }}</div></div>
 </section>
+
+<section class="grid-2">
+  <div class="panel">
+    <div class="panel-header">
+      <h3>Top activity</h3>
+    </div>
+    <div class="summary-list">
+      <div class="summary-item"><span>Most common event</span><strong>{{ stats.top_event }}</strong></div>
+      <div class="summary-item"><span>Most active source IP</span><strong>{{ stats.top_source }}</strong></div>
+    </div>
+    <h4 class="subheading">Most common events</h4>
+    <div class="mini-list">
+      {% for event, count in top_events %}
+      <div class="mini-row"><span>{{ event }}</span><strong>{{ count }}</strong></div>
+      {% else %}
+      <div class="empty">No event data available.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <h3>Quick actions</h3>
+    </div>
+    <div class="action-grid">
+      <a class="btn" href="{{ url_for('logs_page') }}">Open logs</a>
+      <a class="btn" href="{{ url_for('alerts_page') }}">Open alerts</a>
+      <a class="btn" href="{{ url_for('scans_page') }}">Open scans</a>
+      <a class="btn btn-light" href="{{ url_for('export_alerts') }}">Export alerts CSV</a>
+    </div>
+    <p class="muted-note">Use the logs page to filter by severity or search by IP, event, or status.</p>
+  </div>
+</section>
+
 <section class="panel">
-    <h2>Recent Alerts</h2>
+  <div class="panel-header">
+    <h3>Recent alerts</h3>
+  </div>
+  <div class="table-wrap">
     <table>
-        <thead><tr><th>Severity</th><th>Type</th><th>Source</th><th>Details</th></tr></thead>
-        <tbody>
-            {% for alert in alerts[:5] %}
-            <tr><td>{{ alert.severity|title }}</td><td>{{ alert.type }}</td><td>{{ alert.source }}</td><td>{{ alert.details }}</td></tr>
-            {% else %}
-            <tr><td colspan="4">No alerts found.</td></tr>
-            {% endfor %}
-        </tbody>
+      <thead>
+        <tr>
+          <th>Severity</th>
+          <th>Type</th>
+          <th>Source</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for alert in alerts[:5] %}
+        <tr>
+          <td><span class="badge badge-{{ alert.severity }}">{{ alert.severity|title }}</span></td>
+          <td class="td-plain">{{ alert.type }}</td>
+          <td>{{ alert.source }}</td>
+          <td class="td-plain">{{ alert.details }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="empty">No alerts found.</td></tr>
+        {% endfor %}
+      </tbody>
     </table>
+  </div>
 </section>
 {% endblock %}

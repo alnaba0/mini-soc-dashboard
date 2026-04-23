@@ -1,35 +1,47 @@
 {% extends "base.html" %}
 {% block title %}Logs{% endblock %}
 {% block content %}
-<div style="margin-top:24px"></div>
-<div class="section-title">Security Logs</div>
-<div class="panel">
-  <h2><span class="dot"></span> Log Events</h2>
-
-  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px">
-    <div class="filters">
-      <a href="{{ url_for('logs_page') }}"               {% if not selected_severity %}class="active"{% endif %}>All</a>
-      <a href="{{ url_for('logs_page', severity='low') }}"    {% if selected_severity=='low'    %}class="active"{% endif %}>Low</a>
-      <a href="{{ url_for('logs_page', severity='medium') }}" {% if selected_severity=='medium' %}class="active"{% endif %}>Medium</a>
-      <a href="{{ url_for('logs_page', severity='high') }}"   {% if selected_severity=='high'   %}class="active"{% endif %}>High</a>
-    </div>
-    <input id="tableSearch" class="search-box" type="text" placeholder="🔍  Search logs…">
+<div class="page-heading">
+  <div>
+    <h2>Security logs</h2>
+    <p>Filter local test logs by severity or search for a source IP, event, or action.</p>
   </div>
+  <a class="btn btn-light" href="{{ url_for('export_logs', severity=selected_severity, q=query) }}">Export logs CSV</a>
+</div>
 
-  <div style="margin-bottom:10px;font-size:12px;color:var(--muted);font-family:var(--font-mono)">
-    Showing <strong style="color:var(--text)">{{ logs|length }}</strong> event(s)
+<section class="panel">
+  <div class="panel-header">
+    <h3>Filter logs</h3>
   </div>
+  <form class="toolbar" method="get" action="{{ url_for('logs_page') }}">
+    <select class="input" name="severity">
+      <option value="" {% if not selected_severity %}selected{% endif %}>All severities</option>
+      <option value="low" {% if selected_severity=='low' %}selected{% endif %}>Low</option>
+      <option value="medium" {% if selected_severity=='medium' %}selected{% endif %}>Medium</option>
+      <option value="high" {% if selected_severity=='high' %}selected{% endif %}>High</option>
+    </select>
+    <input class="input input-grow" type="text" name="q" value="{{ query }}" placeholder="Search by IP, event, or action">
+    <button class="btn" type="submit">Apply</button>
+    <a class="btn btn-light" href="{{ url_for('logs_page') }}">Reset</a>
+  </form>
+  {% if upload_message %}<p class="notice success">{{ upload_message }}</p>{% endif %}
+</section>
 
+<section class="panel">
+  <div class="panel-header">
+    <h3>Log events</h3>
+    <span class="panel-meta">Showing {{ logs|length }} row(s)</span>
+  </div>
   <div class="table-wrap">
     <table>
       <thead>
         <tr>
-          <th data-sort>Time <i class="sort-icon">↕</i></th>
-          <th data-sort>Source IP <i class="sort-icon">↕</i></th>
-          <th data-sort>Destination <i class="sort-icon">↕</i></th>
-          <th data-sort>Event <i class="sort-icon">↕</i></th>
-          <th data-sort>Severity <i class="sort-icon">↕</i></th>
-          <th data-sort>Action <i class="sort-icon">↕</i></th>
+          <th>Time</th>
+          <th>Source IP</th>
+          <th>Destination</th>
+          <th>Event</th>
+          <th>Severity</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -53,5 +65,5 @@
       </tbody>
     </table>
   </div>
-</div>
+</section>
 {% endblock %}
