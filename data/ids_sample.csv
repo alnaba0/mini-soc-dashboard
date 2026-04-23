@@ -1,0 +1,4 @@
+Source IP,Destination IP,Protocol,Flow Duration,Label
+172.16.0.1,192.168.10.50,6,182341,BENIGN
+10.10.10.15,192.168.10.50,6,92134,DoS Hulk
+203.0.113.5,192.168.10.50,6,210943,PortScan

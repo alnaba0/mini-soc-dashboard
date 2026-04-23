@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Scans{% endblock %}
+{% block content %}
+<div style="margin-top:24px"></div>
+<div class="section-title">Network Scans & IDS</div>
+
+<div class="grid-2">
+
+  <!-- Nmap results -->
+  <div class="panel">
+    <h2><span class="dot" style="background:var(--orange)"></span> Nmap Raw Output</h2>
+    <pre id="nmapPre">{{ nmap_text }}</pre>
+  </div>
+
+  <!-- Open ports table -->
+  <div class="panel">
+    <h2><span class="dot" style="background:var(--accent)"></span> Open Ports</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th data-sort>Port <i class="sort-icon">↕</i></th>
+            <th data-sort>State <i class="sort-icon">↕</i></th>
+            <th data-sort>Service <i class="sort-icon">↕</i></th>
+            <th>Risk</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for port in open_ports %}
+          {% set svc = port.service|lower %}
+          {% set risk = 'high' if svc in ['ftp','telnet','mysql','mssql','rdp','vnc'] else ('medium' if svc in ['ssh','smtp','dns','snmp'] else 'low') %}
+          <tr>
+            <td>{{ port.port }}</td>
+            <td><span class="badge badge-low">{{ port.state }}</span></td>
+            <td>{{ port.service }}</td>
+            <td><span class="badge badge-{{ risk }}">{{ risk|title }}</span></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="empty">No ports found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border)">
+      <div style="font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px">Risk legend</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <span class="badge badge-high">High — DB/RDP/VNC</span>
+        <span class="badge badge-medium">Medium — SSH/SMTP</span>
+        <span class="badge badge-low">Low — HTTP/S</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- IDS table -->
+<div class="panel">
+  <h2><span class="dot" style="background:var(--red)"></span> IDS Sample Data</h2>
+
+  <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+    <div class="filters" id="idsFilters">
+      <button class="filter-btn active" data-label="all">All</button>
+      <button class="filter-btn" data-label="BENIGN">Benign</button>
+      <button class="filter-btn" data-label="attack">Attack</button>
+    </div>
+    <input id="tableSearch" class="search-box" type="text" placeholder="🔍  Search IDS data…">
+  </div>
+
+  <div class="table-wrap">
+    <table id="idsTable">
+      <thead>
+        <tr>
+          <th data-sort>Source IP <i class="sort-icon">↕</i></th>
+          <th data-sort>Destination IP <i class="sort-icon">↕</i></th>
+          <th data-sort>Protocol <i class="sort-icon">↕</i></th>
+          <th data-sort>Flow Duration <i class="sort-icon">↕</i></th>
+          <th data-sort>Label <i class="sort-icon">↕</i></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in ids_rows %}
+        {% set label = row['Label']|upper %}
+        {% set is_benign = (label == 'BENIGN') %}
+        <tr data-label="{{ 'BENIGN' if is_benign else 'attack' }}">
+          <td>{{ row['Source IP'] }}</td>
+          <td>{{ row['Destination IP'] }}</td>
+          <td>{{ row['Protocol'] }}</td>
+          <td>{{ row['Flow Duration'] }}</td>
+          <td>
+            {% if is_benign %}
+              <span class="badge badge-benign">Benign</span>
+            {% else %}
+              <span class="badge badge-attack">{{ row['Label'] }}</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="empty">No IDS rows found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  // Syntax-highlight the nmap output
+  const pre = document.getElementById('nmapPre');
+  if (pre) {
+    pre.innerHTML = pre.textContent
+      .replace(/(Starting Nmap.*)/g, '<span class="comment">$1</span>')
+      .replace(/(Nmap scan report for )([\d.]+)/g, '$1<span class="host">$2</span>')
+      .replace(/(\d+\/tcp)\s+(open)\s+(\S+)/g, '<span class="port">$1</span>  <span class="open">$2</span>  $3')
+      .replace(/(Host is up\.?)/g, '<span class="open">$1</span>');
+  }
+
+  // IDS label filter
+  document.querySelectorAll('#idsFilters .filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#idsFilters .filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const lbl = btn.dataset.label;
+      document.querySelectorAll('#idsTable tbody tr[data-label]').forEach(row => {
+        row.style.display = (lbl === 'all' || row.dataset.label === lbl) ? '' : 'none';
+      });
+    });
+  });
+</script>
+{% endblock %}

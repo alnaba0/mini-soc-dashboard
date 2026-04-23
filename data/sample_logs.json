@@ -1,0 +1,162 @@
+[
+  {
+    "time": "2026-04-20 07:02:11",
+    "source_ip": "192.168.1.15",
+    "destination_ip": "192.168.1.10",
+    "event": "Successful login for user jsmith",
+    "severity": "low",
+    "status": "OK"
+  },
+  {
+    "time": "2026-04-20 08:10:00",
+    "source_ip": "192.168.1.20",
+    "destination_ip": "192.168.1.10",
+    "event": "Failed login for admin account",
+    "severity": "medium",
+    "status": "Blocked"
+  },
+  {
+    "time": "2026-04-20 08:11:00",
+    "source_ip": "192.168.1.20",
+    "destination_ip": "192.168.1.10",
+    "event": "Failed login for admin account",
+    "severity": "medium",
+    "status": "Blocked"
+  },
+  {
+    "time": "2026-04-20 08:12:00",
+    "source_ip": "192.168.1.20",
+    "destination_ip": "192.168.1.10",
+    "event": "Failed login for admin account",
+    "severity": "medium",
+    "status": "Blocked"
+  },
+  {
+    "time": "2026-04-20 08:22:44",
+    "source_ip": "10.10.10.99",
+    "destination_ip": "192.168.1.10",
+    "event": "SSH brute-force attempt detected",
+    "severity": "high",
+    "status": "Blocked"
+  },
+  {
+    "time": "2026-04-20 08:44:00",
+    "source_ip": "10.0.0.8",
+    "destination_ip": "192.168.1.10",
+    "event": "Port scan detected from external source",
+    "severity": "high",
+    "status": "Review"
+  },
+  {
+    "time": "2026-04-20 08:55:31",
+    "source_ip": "192.168.1.30",
+    "destination_ip": "8.8.8.8",
+    "event": "DNS query for known malicious domain malware-c2.ru",
+    "severity": "high",
+    "status": "Blocked"
+  },
+  {
+    "time": "2026-04-20 09:00:00",
+    "source_ip": "172.16.0.5",
+    "destination_ip": "192.168.1.20",
+    "event": "Large outbound traffic observed (>500MB)",
+    "severity": "high",
+    "status": "Review"
+  },
+  {
+    "time": "2026-04-20 09:05:17",
+    "source_ip": "192.168.1.10",
+    "destination_ip": "192.168.1.50",
+    "event": "SMB lateral movement attempt",
+    "severity": "high",
+    "status": "Blocked"
+  },
+  {
+    "time": "2026-04-20 09:18:02",
+    "source_ip": "203.0.113.22",
+    "destination_ip": "192.168.1.10",
+    "event": "SQL injection attempt on web application",
+    "severity": "high",
+    "status": "Blocked"
+  },
+  {
+    "time": "2026-04-20 09:29:44",
+    "source_ip": "192.168.1.44",
+    "destination_ip": "192.168.1.10",
+    "event": "User privilege escalation detected",
+    "severity": "high",
+    "status": "Review"
+  },
+  {
+    "time": "2026-04-20 09:35:00",
+    "source_ip": "192.168.1.22",
+    "destination_ip": "192.168.1.10",
+    "event": "Password change completed for user bwilson",
+    "severity": "low",
+    "status": "OK"
+  },
+  {
+    "time": "2026-04-20 09:41:55",
+    "source_ip": "10.0.0.3",
+    "destination_ip": "192.168.1.10",
+    "event": "Failed login for root account",
+    "severity": "medium",
+    "status": "Blocked"
+  },
+  {
+    "time": "2026-04-20 09:42:01",
+    "source_ip": "10.0.0.3",
+    "destination_ip": "192.168.1.10",
+    "event": "Failed login for root account",
+    "severity": "medium",
+    "status": "Blocked"
+  },
+  {
+    "time": "2026-04-20 09:42:10",
+    "source_ip": "10.0.0.3",
+    "destination_ip": "192.168.1.10",
+    "event": "Failed login for root account",
+    "severity": "medium",
+    "status": "Blocked"
+  },
+  {
+    "time": "2026-04-20 09:55:30",
+    "source_ip": "192.168.1.10",
+    "destination_ip": "192.168.1.10",
+    "event": "New user account created: svc_backup",
+    "severity": "medium",
+    "status": "Review"
+  },
+  {
+    "time": "2026-04-20 10:03:14",
+    "source_ip": "172.16.0.8",
+    "destination_ip": "192.168.1.10",
+    "event": "XSS payload detected in HTTP request",
+    "severity": "high",
+    "status": "Blocked"
+  },
+  {
+    "time": "2026-04-20 10:15:00",
+    "source_ip": "192.168.1.25",
+    "destination_ip": "192.168.1.10",
+    "event": "Scheduled backup completed successfully",
+    "severity": "low",
+    "status": "OK"
+  },
+  {
+    "time": "2026-04-20 10:28:49",
+    "source_ip": "198.51.100.5",
+    "destination_ip": "192.168.1.10",
+    "event": "Directory traversal attempt on /etc/passwd",
+    "severity": "high",
+    "status": "Blocked"
+  },
+  {
+    "time": "2026-04-20 10:44:00",
+    "source_ip": "192.168.1.10",
+    "destination_ip": "192.168.1.10",
+    "event": "Firewall rule updated by admin",
+    "severity": "low",
+    "status": "OK"
+  }
+]

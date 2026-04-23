@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Alerts{% endblock %}
+{% block content %}
+<div style="margin-top:24px"></div>
+<div class="section-title">Security Alerts</div>
+
+<!-- Summary cards -->
+<section class="cards" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
+  <div class="card card-red">
+    <div class="card-label">High</div>
+    <div class="card-value" data-target="{{ alerts|selectattr('severity','equalto','high')|list|length }}">0</div>
+    <div class="card-icon">🔴</div>
+  </div>
+  <div class="card card-orange">
+    <div class="card-label">Medium</div>
+    <div class="card-value" data-target="{{ alerts|selectattr('severity','equalto','medium')|list|length }}">0</div>
+    <div class="card-icon">🟠</div>
+  </div>
+  <div class="card card-green">
+    <div class="card-label">Low</div>
+    <div class="card-value" data-target="{{ alerts|selectattr('severity','equalto','low')|list|length }}">0</div>
+    <div class="card-icon">🟢</div>
+  </div>
+</section>
+
+<div class="panel">
+  <h2><span class="dot" style="background:var(--red)"></span> All Alerts</h2>
+
+  <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+    <div class="filters" id="alertFilters">
+      <button class="filter-btn active" data-sev="all">All</button>
+      <button class="filter-btn" data-sev="high">High</button>
+      <button class="filter-btn" data-sev="medium">Medium</button>
+      <button class="filter-btn" data-sev="low">Low</button>
+    </div>
+    <input id="tableSearch" class="search-box" type="text" placeholder="🔍  Search alerts…">
+  </div>
+
+  <div class="table-wrap">
+    <table id="alertTable">
+      <thead>
+        <tr>
+          <th data-sort>Severity <i class="sort-icon">↕</i></th>
+          <th data-sort>Type <i class="sort-icon">↕</i></th>
+          <th data-sort>Source <i class="sort-icon">↕</i></th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for alert in alerts %}
+        <tr data-sev="{{ alert.severity }}">
+          <td><span class="badge badge-{{ alert.severity }}">{{ alert.severity|title }}</span></td>
+          <td class="td-plain">{{ alert.type }}</td>
+          <td>{{ alert.source }}</td>
+          <td class="td-plain">{{ alert.details }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="empty">No alerts generated.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  // Severity filter buttons
+  document.querySelectorAll('#alertFilters .filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#alertFilters .filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const sev = btn.dataset.sev;
+      document.querySelectorAll('#alertTable tbody tr[data-sev]').forEach(row => {
+        row.style.display = (sev === 'all' || row.dataset.sev === sev) ? '' : 'none';
+      });
+    });
+  });
+</script>
+{% endblock %}

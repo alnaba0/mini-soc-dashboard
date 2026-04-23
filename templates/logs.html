@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Logs{% endblock %}
+{% block content %}
+<div style="margin-top:24px"></div>
+<div class="section-title">Security Logs</div>
+<div class="panel">
+  <h2><span class="dot"></span> Log Events</h2>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+    <div class="filters">
+      <a href="{{ url_for('logs_page') }}"               {% if not selected_severity %}class="active"{% endif %}>All</a>
+      <a href="{{ url_for('logs_page', severity='low') }}"    {% if selected_severity=='low'    %}class="active"{% endif %}>Low</a>
+      <a href="{{ url_for('logs_page', severity='medium') }}" {% if selected_severity=='medium' %}class="active"{% endif %}>Medium</a>
+      <a href="{{ url_for('logs_page', severity='high') }}"   {% if selected_severity=='high'   %}class="active"{% endif %}>High</a>
+    </div>
+    <input id="tableSearch" class="search-box" type="text" placeholder="🔍  Search logs…">
+  </div>
+
+  <div style="margin-bottom:10px;font-size:12px;color:var(--muted);font-family:var(--font-mono)">
+    Showing <strong style="color:var(--text)">{{ logs|length }}</strong> event(s)
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th data-sort>Time <i class="sort-icon">↕</i></th>
+          <th data-sort>Source IP <i class="sort-icon">↕</i></th>
+          <th data-sort>Destination <i class="sort-icon">↕</i></th>
+          <th data-sort>Event <i class="sort-icon">↕</i></th>
+          <th data-sort>Severity <i class="sort-icon">↕</i></th>
+          <th data-sort>Action <i class="sort-icon">↕</i></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr>
+          <td>{{ log.time }}</td>
+          <td>{{ log.source_ip }}</td>
+          <td>{{ log.destination_ip }}</td>
+          <td class="td-plain">{{ log.event }}</td>
+          <td><span class="badge badge-{{ log.severity|lower }}">{{ log.severity|title }}</span></td>
+          <td>
+            {% set st = log.status|lower %}
+            {% if st == 'blocked' %}<span class="badge badge-high">Blocked</span>
+            {% elif st == 'review' %}<span class="badge badge-medium">Review</span>
+            {% else %}<span class="badge badge-low">{{ log.status }}</span>{% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="empty">No logs match the current filter.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
